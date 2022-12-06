@@ -5,23 +5,65 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Shopping List App</title>
+    <link rel="stylesheet" href="./main.css">
 </head>
 <body>
     <div id="shopping-list">
-        <h1> {{header}} </h1>
-        <input v-model="header">
+        <div class="header">
+            <h1> {{header || 'Welcome'}} </h1>
+            <button v-if="editing" @click="doEdit(false)" class="btn btn-cancel">Cancel</button>
+            <button v-else @click="doEdit(true)" class="btn btn-primary">Add Item</button>
+        </div>
+        <div v-if="editing" class="add-item-form">
+            <input 
+            v-on:keyup.enter="saveItem"
+            type="text" v-model="newItem" placeholder="Add new Item">
+            <!-- <label>
+                <input type="checkbox" v-model="newItemHightPriority">
+                High Priority
+            </label> -->
+            <button
+            v-bind:disabled="newItem.length === 0"
+            v-on:click="saveItem"
+            class="btn btn-primary">Save item</button>
+        </div>
+        <a v-bind:href="newItem">Dynamic Link</a>
+        <p v-if="items.length === 0">Nive job! You've bought all your items!</p>
+        <ul>
+            <li v-for="item in items" :key="item.id"
+            :class="{strikeout: item.purchased}"
+            > {{item.label}} </li>
+        </ul>
     </div>
     <script src="https://unpkg.com/vue@v3.1.1"></script>
     <script>
         const ShoppingList = Vue.createApp ({
             data() {
                 return {
-                    header: "Vue is ready for party?"
+                    header: "Shopping List App",
+                    editing: false,
+                    newItem: '',
+                    newItemHightPriority: false,
+                    items: [
+                        {id: 1, label:'10 party hats', purchased: true },
+                        {id: 1, label:'2 board games', purchased: true },
+                        {id: 1, label: '20 cups', purchased: false}
+                    ]
+                }
+            },
+
+            methods: {
+                saveItem() {
+                    this.items.push({id:this.items.length + 1, label: this.newItem})
+                    this.newItem = ""
+                },
+
+                doEdit(editing) {
+                    this.editing = editing
+                    this.newItem = ""
                 }
             }
-        })
-
-        .mount('#shopping-list');
+        }).mount('#shopping-list');
     </script>
 </body>
 </html>
