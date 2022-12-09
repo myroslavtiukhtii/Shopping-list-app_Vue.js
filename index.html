@@ -18,10 +18,11 @@
             <input 
             v-on:keyup.enter="saveItem"
             type="text" v-model="newItem" placeholder="Add new Item">
-            <!-- <label>
+            <p class="counter">{{characterCount}}/200</p>
+            <label>
                 <input type="checkbox" v-model="newItemHightPriority">
                 High Priority
-            </label> -->
+            </label>
             <button
             v-bind:disabled="newItem.length === 0"
             v-on:click="saveItem"
@@ -30,8 +31,11 @@
         <a v-bind:href="newItem">Dynamic Link</a>
         <p v-if="items.length === 0">Nive job! You've bought all your items!</p>
         <ul>
-            <li v-for="item in items" :key="item.id"
-            :class="{strikeout: item.purchased}"
+            <li v-for="item in reversedItems"
+            @click="togglePurchased(item)"
+            :key="item.id"
+            :class="{strikeout: item.purchased, priority: item.highPriority}"
+            class="static-class"
             > {{item.label}} </li>
         </ul>
     </div>
@@ -45,22 +49,42 @@
                     newItem: '',
                     newItemHightPriority: false,
                     items: [
-                        {id: 1, label:'10 party hats', purchased: true },
-                        {id: 1, label:'2 board games', purchased: true },
-                        {id: 1, label: '20 cups', purchased: false}
+                        {id: 1, label:'10 party hats', purchased: true, highPriority: true },
+                        {id: 1, label:'2 board games', purchased: true, highPriority: true },
+                        {id: 1, label: '20 cups', purchased: false, highPriority: false}
                     ]
+                }
+            },
+
+            computed: {
+                characterCount() {
+                    return this.newItem.length
+                },
+
+                reversedItems() {
+                    return [...this.items].reverse()
                 }
             },
 
             methods: {
                 saveItem() {
-                    this.items.push({id:this.items.length + 1, label: this.newItem})
+                    this.items.push({
+                        id:this.items.length + 1,
+                        label: this.newItem,
+                        highPriority: this.newItemHightPriority
+                    })
                     this.newItem = ""
+                    this.newItemHightPriority = ""
                 },
 
                 doEdit(editing) {
                     this.editing = editing
                     this.newItem = ""
+                    this.newItemHightPriority = ""
+                },
+
+                togglePurchased(item) {
+                    item.purchased = !item.purchased
                 }
             }
         }).mount('#shopping-list');
